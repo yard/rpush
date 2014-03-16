@@ -11,6 +11,7 @@ module Rpush
 
       dispatcher :tcp, :host => Proc.new { |app| HOSTS[app.environment.to_sym] }
       loops Rpush::Daemon::Apns::FeedbackReceiver
+      supervisors Rpush::Daemon::Apns::TcpDispatchSupervisor
     end
   end
 end

@@ -50,6 +50,11 @@ module Rpush
       end
     end
 
+    def check_for_errors=(bool)
+      Rapns::Deprecation.warn("check_for_errors is deprecated. As of Rpush 1.1.0 APNs errors are received in an asynchronous fashion that does not inhibit delivery throughput.")
+      super(bool)
+    end
+
     def set_defaults
       if Rpush.jruby?
         # The JVM does not support fork().
@@ -60,7 +65,6 @@ module Rpush
 
       self.push_poll = 2
       self.feedback_poll = 60
-      self.check_for_errors = true
       self.batch_size = 100
       self.pid_file = nil
       self.store = :active_record

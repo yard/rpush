@@ -110,7 +110,7 @@ module Rpush
         ssl_socket = OpenSSL::SSL::SSLSocket.new(tcp_socket, @ssl_context)
         ssl_socket.sync = true
         ssl_socket.connect
-        log_info("Connected to #{@host}:#{@port}")
+        log_info("Connected to #{@host}:#{@port}.")
         [tcp_socket, ssl_socket]
       end
 

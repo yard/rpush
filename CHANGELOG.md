@@ -1,3 +1,6 @@
+## 1.1.0 (unreleased)
+  * Always receive APNs errors asynchronously, deprecates check_for_errors config option.
+
 ## 1.0.0 (Feb 9, 2014)
   * Renamed to Rpush (from Rapns). Version number reset to 1.0.0.
   * Reduce default batch size to 100.

@@ -71,6 +71,7 @@ module Rpush
       end
 
       def start
+        start_supervisors
         app.connections.times { dispatchers.push(new_dispatcher_loop) }
         start_loops
         log_info("Started, #{dispatchers_str}.")
@@ -146,8 +147,8 @@ module Rpush
       protected
 
       def start_loops
-        service_module.loops.each do |loop_class|
-          instance = loop_class.new(@app)
+        service_module.loops.each do |klass|
+          instance = klass.new(@app)
           instance.start
           @loops << instance
         end
@@ -156,6 +157,19 @@ module Rpush
       def stop_loops
         @loops.map(&:stop)
         @loops = []
+      end
+
+      def start_supervisors
+        service_module.supervisors.each do |klass|
+          instance = klass.new
+          instance.start
+          @supervisors << instance
+        end
+      end
+
+      def stop_supervisors
+        @supervisors.map(&:stop)
+        @supervisors = []
       end
 
       def new_dispatcher_loop

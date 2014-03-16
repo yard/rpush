@@ -2,8 +2,8 @@ module Rpush
   module Daemon
     module ServiceConfigMethods
       DISPATCHERS = {
-        :http => Rpush::Daemon::Dispatcher::Http,
-        :tcp => Rpush::Daemon::Dispatcher::Tcp
+        http: Rpush::Daemon::Dispatcher::Http,
+        tcp:  Rpush::Daemon::Dispatcher::Tcp
       }
 
       def dispatcher(name = nil, options = {})
@@ -27,6 +27,12 @@ module Rpush
         @loops ||= []
         @loops = loops if loops.any?
         @loops
+      end
+
+      def supervisors(*supervisors)
+        @supervisors ||= []
+        @supervisors = supervisors if supervisors.any?
+        @supervisors
       end
     end
   end

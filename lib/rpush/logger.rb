@@ -16,6 +16,10 @@ module Rpush
       end
     end
 
+    def debug(msg)
+      log(:debug, msg, 'DEBUG')
+    end
+
     def info(msg)
       log(:info, msg)
     end
