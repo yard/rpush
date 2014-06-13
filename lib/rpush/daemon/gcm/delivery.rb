@@ -10,17 +10,16 @@ module Rpush
         UNAVAILABLE_STATES = %w(Unavailable InternalServerError)
         INVALID_REGISTRATION_ID_STATES = %w(InvalidRegistration MismatchSenderId NotRegistered InvalidPackageName)
 
-        def initialize(app, http, notification, batch)
+        def initialize(app, http, notification)
           @app = app
           @http = http
           @notification = notification
-          @batch = batch
         end
 
         def perform
           handle_response(do_post)
         rescue Rpush::DeliveryError => error
-          mark_failed(error.code, error.description)
+          @notification.mark_failed(error.code, error.description)
           raise
         end
 
@@ -51,7 +50,7 @@ module Rpush
           if results.failures.any?
             handle_failures(results.failures, response)
           else
-            mark_delivered
+            @notification.mark_delivered
             log_info("#{@notification.id} sent to #{@notification.registration_ids.join(', ')}")
           end
         end

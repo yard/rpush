@@ -14,11 +14,10 @@ module Rpush
         # Data used to request authorization tokens.
         ACCESS_TOKEN_REQUEST_DATA = { "grant_type" => "client_credentials", "scope" => "messaging:push" }
 
-        def initialize(app, http, notification, batch)
+        def initialize(app, http, notification)
           @app = app
           @http = http
           @notification = notification
-          @batch = batch
           @sent_registration_ids = []
           @failed_registration_ids = {}
         end
@@ -34,14 +33,14 @@ module Rpush
               @notification.error_description = describe_errors
               Rpush::Daemon.store.update_notification(@notification)
             end
-            mark_delivered
+            @notification.mark_delivered
           end
         rescue Rpush::RetryableError => error
           handle_retryable(error)
         rescue Rpush::TooManyRequestsError => error
           handle_too_many_requests(error)
         rescue Rpush::DeliveryError => error
-          mark_failed(error.code, error.description)
+          @notification.mark_failed(error.code, error.description)
           raise
         end
 
@@ -201,7 +200,7 @@ module Rpush
         def handle_access_token(response)
           if response.code.to_i == 200
             update_access_token(JSON.parse(response.body))
-            Rpush::Daemon.store.update_app(@notification.app)
+            @notification.app.save!
             log_info("ADM access token updated: token = #{@notification.app.access_token}, expires = #{@notification.app.access_token_expiration}")
           else
             log_warn("Could not retrieve access token from ADM: #{response.body}")

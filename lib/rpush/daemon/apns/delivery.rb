@@ -16,20 +16,19 @@ module Rpush
           255 => "None (unknown error)"
         }
 
-        def initialize(app, conneciton, notification, batch)
+        def initialize(app, conneciton, notification)
           @app = app
           @connection = conneciton
           @notification = notification
-          @batch = batch
         end
 
         def perform
           @connection.write(@notification.to_binary)
           check_for_error if Rpush.config.check_for_errors
-          mark_delivered
+          @notification.mark_delivered
           log_info("#{@notification.id} sent to #{@notification.device_token}")
         rescue Rpush::DeliveryError, Rpush::DisconnectionError => error
-          mark_failed(error.code, error.description)
+          @notification.mark_failed(error.code, error.description)
           raise
         end
 

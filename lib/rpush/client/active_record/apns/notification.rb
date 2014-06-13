@@ -9,7 +9,7 @@ module Rpush
           alias_method :attributes_for_device=, :data=
           alias_method :attributes_for_device, :data
 
-          deprecated(:attributes_for_device, '2.1.0', 'Use :data instead.')
+          deprecated(:attributes_for_device,  '2.1.0', 'Use :data instead.')
           deprecated(:attributes_for_device=, '2.1.0', 'Use :data instead.')
 
           def alert=(alert)

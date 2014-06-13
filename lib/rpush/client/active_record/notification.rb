@@ -1,9 +1,12 @@
+require 'rpush/daemon/store/active_record/reconnectable'
+
 module Rpush
   module Client
     module ActiveRecord
       class Notification < ::ActiveRecord::Base
         include Rpush::MultiJsonHelper
         include Rpush::Client::ActiveModel::Notification
+        include Rpush::Daemon::Store::ActiveRecord::Reconnectable
 
         self.table_name = 'rpush_notifications'
 
@@ -32,6 +35,37 @@ module Rpush
         def data
           multi_json_load(read_attribute(:data)) if read_attribute(:data)
         end
+
+        #  Marks notification as delivered due to error
+        #
+        #  <tt><code/tt>  Code error occured during delivery
+        #  <tt><description/tt>  Error description
+        #
+        def mark_delivered
+          with_database_reconnect_and_retry do
+            self.delivered = true
+            self.delivered_at = Time.now
+            self.save!(:validate => false)
+          end
+        end
+  
+        #  Marks notification as failed due to error
+        #
+        #  <tt><code/tt>  Code error occured during delivery
+        #  <tt><description/tt>  Error description
+        #
+        def mark_failed(code, description)
+          with_database_reconnect_and_retry do
+            self.delivered = false
+            self.delivered_at = nil
+            self.failed = true
+            self.failed_at = Time.now
+            self.error_code = code
+            self.error_description = description
+            self.save!(:validate => false)
+          end
+        end
+
       end
     end
   end
